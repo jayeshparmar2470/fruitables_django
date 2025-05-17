@@ -1,0 +1,27 @@
+# class Product(models.Model):
+#     # existing fields...
+#     category = models.CharField(max_length=50)  # keep the original
+#     category_fk = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
+
+
+# python manage.py makemigrations
+# python manage.py migrate
+
+
+# python manage.py shell
+
+
+# from yourapp.models import Product, Category
+
+# # Step 1: Create unique categories
+# unique_categories = Product.objects.values_list('category', flat=True).distinct()
+
+# for cat_name in unique_categories:
+#     Category.objects.get_or_create(name=cat_name)
+
+# # Step 2: Update products with foreign key
+# for product in Product.objects.all():
+#     cat = Category.objects.get(name=product.category)
+#     product.category_fk = cat
+#     product.save()
+
