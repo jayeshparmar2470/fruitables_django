@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 # Create your models here.
 from django.conf import settings  # For referencing the custom user model
 
@@ -37,7 +37,7 @@ class addtocart(models.Model):
         super().save(*args,**kwargs)
 
 class Shippingfee(models.Model):
-    zip_code = models.PositiveBigIntegerField(default='380015')
+    zip_code = models.PositiveBigIntegerField(default=380015)
     shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     local_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
@@ -55,7 +55,7 @@ class Billingaddress(models.Model):
     city = models.CharField(max_length=100,default='ahmedabad')
     state = models.CharField(max_length=100,default='gujarat')
     country = models.CharField(max_length=100, default='India')
-    Shippingfee=models.OneToOneField(Shippingfee, on_delete=models.CASCADE, null=True, blank=True)
+    shippingfee=models.OneToOneField(Shippingfee, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.city}"

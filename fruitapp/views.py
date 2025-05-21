@@ -228,7 +228,7 @@ def razorpay_verify(request):
             # country=request.POST.get('country'),
             country='country',
             # Shippingfee=Shippingfee.objects.filter(zip_code=request.POST.get('zip_code')).first()       
-            Shippingfee=Shippingfee.objects.filter(zip_code='380015').first()       
+            shippingfee=Shippingfee.objects.filter(zip_code='380015').first()       
             )
         
             order= Order.objects.create(
@@ -272,7 +272,7 @@ def place_order(request):
             city=request.POST.get('city'),
             state=request.POST.get('state'),
             country=request.POST.get('country'),
-            Shippingfee=Shippingfee.objects.filter(zip_code=request.POST.get('zip_code')).first()       
+            shippingfee=Shippingfee.objects.filter(zip_code=request.POST.get('zip_code')).first()       
               )
         
         order= Order.objects.create(

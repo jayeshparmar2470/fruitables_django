@@ -19,3 +19,8 @@ backports.tarfile
 pydotplus
 pygot
 django-extensions
+
+pytest
+pytest-html
+
+pytest-django
