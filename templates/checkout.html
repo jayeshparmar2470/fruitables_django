@@ -3,272 +3,244 @@
 {% block title %}checkout{% endblock %}
 {% block content %}
 
-        <!-- Single Page Header start -->
-        <div class="container-fluid page-header py-5">
-            <h1 class="text-center text-white display-6">Checkout</h1>
-            <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Pages</a></li>
-                <li class="breadcrumb-item active text-white">Checkout</li>
-            </ol>
-        </div>
-        <!-- Single Page Header End -->
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Checkout</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Pages</a></li>
+        <li class="breadcrumb-item active text-white">Checkout</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
 
-<form action="{% url 'place_order' %}" method="POST" enctype="multipart/form-data">
+<!-- Checkout Page Start -->
+<div class="container-fluid py-5">
+    <div class="container py-5">    
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <h1 class="mb-4">Billing details</h1>
+        <form id="checkout-form" action="{% url 'place_order' %}" method="POST">
             {% csrf_token %}
-        <!-- Checkout Page Start -->
-        <div class="container-fluid py-5">
-            <div class="container py-5">
-                <h1 class="mb-4">Billing details</h1>
-                <!-- <form action="#"> -->
-                    <div class="row g-5">
-                        <div class="col-md-12 col-lg-6 col-xl-7">
-                            <div class="row">
-                                <div class="col-md-12 col-lg-6">
-                                    <div class="form-item w-100">
-                                        <label class="form-label my-3">First Name<sup>*</sup></label>
-                                        <input type="text" class="form-control" name="first_name" title="Enter your first name" placeholder="First Name">
-                                    </div>
-                                </div>
-                                <div class="col-md-12 col-lg-6">
-                                    <div class="form-item w-100">
-                                        <label class="form-label my-3">Last Name<sup>*</sup></label>
-                                        <input type="text" name="last_name" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">Address <sup>*</sup></label>
-                                <input type="text" name="address" class="form-control" placeholder="House Number Street Name">
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">Town/City<sup>*</sup></label>
-                                <input type="text" name="city" class="form-control">
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">Country<sup>*</sup></label>
-                                <input type="text" name="country" class="form-control">
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">Postcode/Zip<sup>*</sup></label>
-                                <input type="text" name="zip_code" class="form-control" value="{{ship_obj.zip_code}}" placeholder="Postcode/Zip" readonly/>
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">state<sup>*</sup></label>
-                                <input type="text" name="state" class="form-control" placeholder="state" />
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">Mobile<sup>*</sup></label>
-                                <input type="tel" name="phone" class="form-control">
-                            </div>
-                            <div class="form-item">
-                                <label class="form-label my-3">Email Address<sup>*</sup></label>
-                                <input type="email" name="email" class="form-control">
-                            </div>
-                            <!-- <div class="form-check my-3">
-                                <input type="checkbox" class="form-check-input" id="Account-1" name="Accounts" value="Accounts">
-                                <label class="form-check-label" for="Account-1">Create an account?</label>
-                            </div> -->
-                            <hr>
-                            <div class="form-check my-3">
-                                <input class="form-check-input" type="checkbox" id="Address-1" name="Address" value="Address">
-                                <label class="form-check-label" for="Address-1">Ship to a different address?</label>
-                            </div>
-                            <div class="form-item">
-                                <textarea name="text" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Oreder Notes (Optional)"></textarea>
+            <div class="row g-5">
+                <div class="col-md-12 col-lg-6 col-xl-7">
+                    <div class="row">
+                        <div class="col-md-12 col-lg-6">
+                            <div class="form-item w-100">
+                                <label class="form-label my-3">First Name<sup>*</sup></label>
+                                <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
                             </div>
                         </div>
-                        <div class="col-md-12 col-lg-6 col-xl-5">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Products</th>
-                                            <th scope="col">Name</th>
-                                            <th scope="col">Price</th>
-                                            <th scope="col">Quantity</th>
-                                            <th scope="col">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            {% for i in my_items %}
-
-                                            <th scope="row">
-                                                <div class="d-flex align-items-center mt-2">
-                                                    <img src="{{i.product.image.url}}" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
-                                                </div>
-                                            </th>
-                                            <td class="py-5">{{i.product.name}}</td>
-                                            <td class="py-5">${{i.product.price}}</td>
-                                            <td class="py-5">{{i.quantity}}</td>
-                                            <td class="py-5">${{i.total}}</td>
-                                        </tr>
-                                        {% endfor %}
-                                        <!-- <tr>
-                                            <th scope="row">
-                                                <div class="d-flex align-items-center mt-2">
-                                                    <img src="{% static 'img/vegetable-item-5.jpg' %}" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
-                                                </div>
-                                            </th>
-                                            <td class="py-5">Potatoes</td>
-                                            <td class="py-5">$69.00</td>
-                                            <td class="py-5">2</td>
-                                            <td class="py-5">$138.00</td>
-                                        </tr> -->
-                                        <!-- <tr>
-                                            <th scope="row">
-                                                <div class="d-flex align-items-center mt-2">
-                                                    <img src="{% static 'img/vegetable-item-3.png' %}" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
-                                                </div>
-                                            </th>
-                                            <td class="py-5">Big Banana</td>
-                                            <td class="py-5">$69.00</td>
-                                            <td class="py-5">2</td>
-                                            <td class="py-5">$138.00</td>
-                                        </tr> -->
-                                        <tr>
-                                            <th scope="row">
-                                            </th>
-                                            <td class="py-5"></td>
-                                            <td class="py-5"></td>
-                                            <td class="py-5">
-                                                <p class="mb-0 text-dark py-3">Subtotal</p>
-                                            </td>
-                                            <td class="py-5">
-                                                <div class="py-3 border-bottom border-top">
-                                                    <p class="mb-0 text-dark">${{total_price}}</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">
-                                            </th>
-                                            <td class="py-5">
-                                                
-                                                <p class="mb-0 text-dark py-4">Shipping charges</p>
-                                            </td>
-                                            <td colspan="3" class="py-5">
-                                                <ul class="text-start">
-                                                    
-                                                        <strong>Free Shipping:</strong>
-                                                        {% if is_first_order %}
-                                                            Available on your first order
-                                                        {% else %}
-
-                                                            <p class="text-muted">Not available (only for first-time orders)</p>
-
-                                                            <li>
-                                                                <strong>Fixed charges:</strong> ${{ ship_obj.shipping_fee }}
-                                                            </li>
-                                                            <li>
-                                                                <strong>Local Fee:</strong> ${{ ship_obj.local_fee }}
-                                                            </li>
-                                                        {% endif %}
-                                                    
-                                                 
-                                                </ul>
-                                            </td>
-                                            
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">
-                                            </th>
-                                            <td class="py-5">
-                                                <p class="mb-0 text-dark text-uppercase py-3">TOTAL</p>
-                                            </td>
-                                            <td class="py-5"></td>
-                                            <td class="py-5"></td>
-                                            <td class="py-5">
-                                                <div class="py-3 border-bottom border-top">
-                                                    <p class="mb-0 text-dark">${{bef_final_amount}}</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <div class="col-md-12 col-lg-6">
+                            <div class="form-item w-100">
+                                <label class="form-label my-3">Last Name<sup>*</sup></label>
+                                <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
                             </div>
-                    
-                            <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                                <div class="col-12">
-                                    <div class="form-check text-start my-3">
-                                        <input type="radio" class="form-check-input bg-primary border-0" id="Delivery-1" name="payment_method" value="Delivery">
-                                        <label class="form-check-label" for="Delivery-1">Cash On Delivery</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row g-4 text-center align-items-center justify-content-center border-bottom py-3">
-                                <div class="col-12">
-                                    <div class="form-check text-start my-3">
-                                        <input type="radio" class="form-check-input bg-primary border-0" id="razorpay-1" name="payment_method" value="razorpay">
-                                        <label class="form-check-label" for="razorpay-1">razorpay</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row g-4 text-center align-items-center justify-content-center pt-4">
-                                <input type="submit" class="btn border-secondary py-3 px-4 text-uppercase w-100 text-primary"/>Place Order
-                            </div>
-                            
-                        </form>
-
-                                <!-- Razorpay Script -->
-                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-                <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const razorpayBtn = document.getElementById('razorpay-button');
-                    if (razorpayBtn) {
-                        razorpayBtn.onclick = function (e) {
-                            e.preventDefault();
-
-                            var options = {
-                                "key": "{{ razorpay_merchant_key }}", 
-                                "amount": "{{ final_amount }}", 
-                                "currency": "{{ currency }}",
-                                "name": "Your Shop Name",
-                                "description": "Test Transaction",
-                                "image": "/static/your-logo.png", 
-                                "order_id": "{{ razorpay_order_id }}",
-                                "handler": function (response){
-                                    // POST payment details to backend
-                                    fetch("{% url 'razorpay_verify' %}", {
-                                        method: "POST",
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'X-CSRFToken': '{{ csrf_token }}'
-                                        },
-                                        body: JSON.stringify(response)
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.status === "success") {
-                                            alert("Payment Successful!");
-                                            window.location.href = "{% url 'order_success' %}";
-                                        } else {
-                                            alert("Payment Failed!");
-                                        }
-                                    });
-                                },
-                                "theme": {
-                                    "color": "#3399cc"
-                                }
-                            };
-                            var rzp1 = new Razorpay(options);
-                            rzp1.open();
-                        }
-                    }
-                });
-                </script>
-
-                <!-- Button -->
-                <button id="razorpay-button" type="button" class="btn btn-primary w-100 py-3">Pay with Razorpay</button>
-        
-
                         </div>
                     </div>
-                <!-- </form> -->
-            </div>
-        </div>
-        <!-- Checkout Page End -->
+                    <div class="form-item">
+                        <label class="form-label my-3">Address <sup>*</sup></label>
+                        <input type="text" name="address" class="form-control" required>
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">Town/City<sup>*</sup></label>
+                        <input type="text" name="city" class="form-control" value="{{ location_data.city }}" required>
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">Country<sup>*</sup></label>
+                        <input type="text" name="country" class="form-control" value="{{ location_data.country }}" required>
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">Postcode/Zip<sup>*</sup></label>
+                        <input type="text" name="zip_code" class="form-control" value="{{ ship_obj.zip_code }}" readonly required>
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">State<sup>*</sup></label>
+                        <input type="text" name="state" class="form-control" value="{{ location_data.state }}" required>
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">Mobile<sup>*</sup></label>
+                       <input type="tel" name="phone" class="form-control" pattern="\d{10}" 
+                       maxlength="10" minlength="10" title="Please enter a 10-digit phone number" required  >
+                        
+                    </div>
+                    <div class="form-item">
+                        <label class="form-label my-3">Email Address<sup>*</sup></label>
+                        <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                    </div>
+                    <hr>
+                    <div class="form-item">
+                        <textarea name="order_notes" class="form-control" spellcheck="false" cols="30" rows="5" placeholder="Order Notes (Optional)"></textarea>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-6 col-xl-5">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Products</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in my_items %}
+                                <tr>
+                                    <th scope="row">
+                                        <div class="d-flex align-items-center mt-2">
+                                            <img src="{{ i.product.image.url }}" class="img-fluid rounded-circle" style="width: 90px; height: 90px;" alt="">
+                                        </div>
+                                    </th>
+                                    <td class="py-5">{{ i.product.name }}</td>
+                                    <td class="py-5">${{ i.product.price }}</td>
+                                    <td class="py-5">{{ i.quantity }}</td>
+                                    <td class="py-5">${{ i.total }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <th scope="row"></th>
+                                    <td class="py-5"></td>
+                                    <td class="py-5"></td>
+                                    <td class="py-5">
+                                        <p class="mb-0 text-dark py-3">Subtotal</p>
+                                    </td>
+                                    <td class="py-5">
+                                        <div class="py-3 border-bottom border-top">
+                                            <p class="mb-0 text-dark">${{ total_price }}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"></th>
+                                    <td class="py-5">
+                                        <p class="mb-0 text-dark py-4">Shipping charges</p>
+                                    </td>
+                                    <td colspan="3" class="py-5">
+                                        <ul class="text-start">
+                                            <strong>Free Shipping:</strong>
+                                            {% if is_first_order %}
+                                                Available on your first order
+                                            {% else %}
+                                                <p class="text-muted">Not available (only for first-time orders)</p>
+                                                <li>
+                                                    <strong>Fixed charges:</strong> ${{ ship_obj.shipping_fee }}
+                                                </li>
+                                                <li>
+                                                    <strong>Local Fee:</strong> ${{ ship_obj.local_fee }}
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"></th>
+                                    <td class="py-5">
+                                        <p class="mb-0 text-dark text-uppercase py-3">TOTAL</p>
+                                    </td>
+                                    <td class="py-5"></td>
+                                    <td class="py-5"></td>
+                                    <td class="py-5">
+                                        <div class="py-3 border-bottom border-top">
+                                            <p class="mb-0 text-dark">${{ bef_final_amount }}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-        {% endblock content %}
+                    <div class="payment-methods">
+                        <div class="form-check my-3">
+                            <input type="radio" class="form-check-input" id="cod" name="payment_method" value="cod" checked>
+                            <label class="form-check-label" for="cod">Cash On Delivery</label>
+                        </div>
+                        <div class="form-check my-3">
+                            <input type="radio" class="form-check-input" id="razorpay" name="payment_method" value="razorpay">
+                            <label class="form-check-label" for="razorpay">Pay with Razorpay</label>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="final_amount" value="{{ final_amount }}">
+                    <input type="hidden" name="razorpay_order_id" value="{{ razorpay_order_id }}">
+
+                    <button type="submit" id="place-order-btn" class="btn btn-primary w-100 py-3">
+                        Place Order
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Checkout Page End -->
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('checkout-form');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const selectedPayment = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (selectedPayment === 'cod') {
+            // For COD, just submit the form normally
+            form.submit();
+        } 
+        else if (selectedPayment === 'razorpay') {
+            // For Razorpay, open the payment modal
+            var options = {
+                "key": "{{ razorpay_merchant_key }}",
+                "amount": "{{ final_amount }}",
+                "currency": "INR",
+                "name": "Your Store Name",
+                "description": "Order Payment",
+                "order_id": "{{ razorpay_order_id }}",
+                "handler": function(response) {
+                    // Add hidden fields with Razorpay response
+                    const razorpayPaymentId = document.createElement('input');
+                    razorpayPaymentId.type = 'hidden';
+                    razorpayPaymentId.name = 'razorpay_payment_id';
+                    razorpayPaymentId.value = response.razorpay_payment_id;
+                    form.appendChild(razorpayPaymentId);
+                    
+                    const razorpaySignature = document.createElement('input');
+                    razorpaySignature.type = 'hidden';
+                    razorpaySignature.name = 'razorpay_signature';
+                    razorpaySignature.value = response.razorpay_signature;
+                    form.appendChild(razorpaySignature);
+                    
+                    // Submit the form
+                    form.submit();
+                },
+                "prefill": {
+                    "name": "{{ user.first_name }} {{ user.last_name }}",
+                    "email": "{{ user.email }}",
+                    "contact": document.querySelector('input[name="phone"]').value
+                },
+                "theme": {
+                    "color": "#3399cc"
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        console.log("Payment cancelled");
+                    }
+                }
+            };
+            
+            var rzp = new Razorpay(options);
+            rzp.open();
+        }
+    });
+});
+</script>
+
+{% endblock content %}

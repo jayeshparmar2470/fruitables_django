@@ -72,6 +72,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 'social_django.context_processors.backends',     #added
                 'social_django.context_processors.login_redirect',   #added
+                'fruitables.context_processors.cart_items_count'  ,  # added
+                'fruitables.context_processors.wishlist_count',    # added
+
             ],
         },
     },

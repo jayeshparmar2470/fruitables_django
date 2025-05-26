@@ -252,10 +252,22 @@ class CheckoutTests(TestCase):
             }),
             content_type='application/json'
         )
-        
-        self.assertEqual(response.status_code, 200)
-        response_data = json.loads(response.content)
-        self.assertEqual(response_data['status'], 'success')
+
+          # Then make the form submission with all required fields
+        form_response = self.client.post(reverse('place_order'), {
+        'email': 'test@example.com',
+        'phone': '1234567890',
+        'address': 'Test Address',
+        'city': 'Test City',
+        'state': 'Test State',
+        'country': 'Test Country',
+        'zip_code': '380015',
+        'payment_method': 'razorpay'
+          })
+            # Verify final redirect
+        self.assertEqual(form_response.status_code, 302)
+        self.assertRedirects(form_response, reverse('order_success'))
+
         
         # Verify order was created
         self.assertTrue(Order.objects.filter(user=self.user).exists())

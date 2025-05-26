@@ -12,7 +12,12 @@ urlpatterns = [
     path("place_order/",views.place_order,name="place_order"),
     path("contact/",views.contact,name="contact"),
     path("testimonial/",views.testimonial,name="testimonial"),
-    path("shop-detail/",views.shop_detail,name="shop_detail"),
+
+    path('shop_detail/<slug:slug>/', views.shop_detail, name='shop_detail'),
+    # path("shop-detail/",views.shop_detail,name="shop_detail"),
+
+    path('search/', views.search_redirect, name='search_redirect'),
+
     path("error/",views.error,name="error"),
     
     path("login/",views.login_view,name="login"),
@@ -28,5 +33,14 @@ urlpatterns = [
     # urls.py
     path('razorpay/verify/', views.razorpay_verify, name='razorpay_verify'),
     path('order/success/', views.order_success, name='order_success'),
+
+
+     path('wishlist/', views.wishlist_view, name='wishlist_view'),
+    path('wishlist/add/<int:product_id>/',views.add_to_wishlist, name='add_to_wishlist'),
+    path('wishlist/remove/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+
+    path('orders/<int:order_id>/', views.order_details, name='order_details'),
+     path('my-orders/', views.order_list, name='order_list'),
+
     
 ]

@@ -1,0 +1,52 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">My Orders</h2>
+    
+    {% if orders %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_date|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if order.shipping_status == 'delivered' %}bg-success
+                            {% elif order.shipping_status == 'cancelled' %}bg-danger
+                            {% else %}bg-warning{% endif %}">
+                            <!-- {{ order.get_shipping_status_display }}  -->
+                              processing
+                        </span>
+                    </td>
+                    <td>${{ order.total|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'order_details' order.id %}" class="btn btn-sm btn-primary">
+                            View Details
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        You haven't placed any orders yet.
+        <a href="{% url 'shop' %}" class="alert-link">Start shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

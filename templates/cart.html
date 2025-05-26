@@ -151,23 +151,22 @@
                     <button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Apply Coupon</button>
                 </div>
                 <div class="mt-5">
-                    <input id="zipInput" type="text" class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Enter your zip code">
-                    
-                    <a id="zipSubmitBtn" class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Submit ZIP Code</a>
+                    <input id="zipInput" type="text" value="{{ ship_obj.zip_code|default:'' }}"
+                        class="border-0 border-bottom rounded me-5 py-3 mb-4" placeholder="Enter your zip code">
+                    <button id="zipSubmitBtn" class="btn border-secondary rounded-pill px-4 py-3 text-primary">
+                        {% if has_zip_code %}Update{% else %}Set{% endif %} ZIP Code
+                    </button>
                 </div>
-                
-                <script>
-                document.getElementById("zipSubmitBtn").addEventListener("click", function () {
-                    const zip = parseInt(document.getElementById("zipInput").value.trim());
-                    
-                    if (zip) {
-                        window.location.href = `/shipping_details/${zip}`;
-                    } else {
-                        alert("Please enter a ZIP code.");
-                    }
-                });
-                </script>
-                
+                        <!-- Show alert if redirected from checkout -->
+                        {% if show_zip_alert %}
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                alert("Please set your ZIP code before checkout.");
+                                document.getElementById("zipInput").focus();
+                            });
+                        </script>
+                        {% endif %}
+
             </div>
                 <div class="row g-4 justify-content-end">
                     <div class="col-8"></div>
@@ -196,13 +195,33 @@
                                     <!-- {%endwith%} -->
                                 </p>
                             </div>
-                            <a href="{% url 'checkout' %}" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed Checkout</a>
+                            <a href="{% url 'checkout' %}" 
+                            onclick="return validateCheckout()"
+                            class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4"
+                             type="button">Proceed Checkout</a>
 
-                            {% if request.session.show_zip_alert %}
-                            <script type="text/javascript">
-                                alert("Please enter a zip code before proceeding to checkout.");
-                            </script>
-                        {% endif %}
+                             
+                    <script>
+                        // ZIP Code Submission
+                        document.getElementById("zipSubmitBtn").addEventListener("click", function () {
+                            const zip = document.getElementById("zipInput").value.trim();
+                            if (zip) {
+                                window.location.href = `/shipping_details/${zip}`;
+                            } else {
+                                alert("Please enter a valid ZIP code.");
+                            }
+                        });
+
+                        // Checkout Validation
+                        function validateCheckout() {
+                            {% if not has_zip_code %}
+                            alert("Please set your ZIP code before checkout.");
+                            document.getElementById("zipInput").focus();
+                            return false;
+                            {% endif %}
+                            return true;
+                        }
+                    </script>
 
                         </div>
                     </div>

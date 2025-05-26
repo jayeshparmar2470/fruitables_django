@@ -2,6 +2,7 @@ from django.db import models
 # from django.contrib.auth.models import User
 # Create your models here.
 from django.conf import settings  # For referencing the custom user model
+from django.utils.text import slugify
 
 class Product(models.Model):
     name = models.CharField(max_length=40)
@@ -9,7 +10,25 @@ class Product(models.Model):
     image = models.ImageField(upload_to='images/')
     desc = models.TextField(max_length=150)
     category = models.ForeignKey('category', on_delete=models.CASCADE, default=1,related_name='products')
+    star=models.IntegerField(default=0)
+    slug = models.SlugField( unique=True,blank=True,null=True)  # Slug field for SEO-friendly URLs
+    # Add these NEW fields (all optional to prevent breaks)
+    is_organic = models.BooleanField(default=False)  # For your template
+    is_featured = models.BooleanField(default=False)  # For homepage sections
+    is_bestseller = models.BooleanField(default=False)  # For bestseller tabs
+
     
+    keywords = models.TextField(blank=True, help_text="Comma-separated search terms")
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        # Auto-generate keywords if empty
+        if not self.keywords:
+            self.keywords = f"{self.name},{self.category.name}"
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -55,7 +74,7 @@ class Billingaddress(models.Model):
     city = models.CharField(max_length=100,default='ahmedabad')
     state = models.CharField(max_length=100,default='gujarat')
     country = models.CharField(max_length=100, default='India')
-    shippingfee=models.OneToOneField(Shippingfee, on_delete=models.CASCADE, null=True, blank=True)
+    shippingfee=models.ForeignKey(Shippingfee, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.city}"
@@ -63,11 +82,49 @@ class Billingaddress(models.Model):
 
 
 class Order(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('cod', 'Cash on Delivery'),
+        ('razorpay', 'Razorpay'),
+    ]
+
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,null=True, blank=True, on_delete=models.SET_NULL)
 
     billing_address = models.ForeignKey(Billingaddress, on_delete=models.CASCADE,null=True, blank=True)
     order_date = models.DateTimeField(auto_now_add=True)
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        default='cod'  # Default to COD for existing orders
+    )
+    payment_status = models.CharField(
+        max_length=20,
+        default='pending'  # Add this field if you want to track payment status
+    )
+    payment_id = models.CharField(max_length=100, blank=True, null=True)  
+
+        
+    @property
+    def subtotal(self):
+        """Calculate sum of all order items"""
+        return self.items.aggregate(total=models.Sum('total'))['total'] or Decimal('0.00')
+    
+    @property
+    def shipping_cost(self):
+        """Calculate shipping fees"""
+        if hasattr(self.billing_address, 'shippingfee'):
+            return (
+                self.billing_address.shippingfee.shipping_fee + 
+                self.billing_address.shippingfee.local_fee
+            )
+        return Decimal('0.00')
+    
+    @property
+    def total(self):
+        """Calculate grand total"""
+        return self.subtotal + self.shipping_cost
+        
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
@@ -83,6 +140,30 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.product.name} x {self.quantity} by {self.order.user.username} for order {self.order.id}"
     
+class Wishlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    added_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')  # Prevent duplicate items
+        ordering = ['-added_date']
+
+    def __str__(self):
+        return f"{self.user.username}'s wishlist: {self.product.name}"    
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"Review by {self.user.username} for {self.product.name}"
 
 # from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin

@@ -21,3 +21,9 @@ venv/
 
 # Frontend
 node_modules/
+
+
+# Python
+import_old_products.py
+*.csv
+task_remaining

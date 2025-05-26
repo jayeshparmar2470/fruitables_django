@@ -1,0 +1,134 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 mt-5 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>Order #{{ order.id }}</h3>
+                    <p class="mb-0">Placed on {{ order.order_date|date:"F j, Y" }}</p>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Payment Information -->
+                    <div class="payment-info mb-4">
+                        <h4>Payment Information</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="badge {% if order.payment_status == 'completed' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {{ order.payment_status|title }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                {% if order.payment_id %}
+                                <p><strong>Transaction ID:</strong> {{ order.payment_id }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div class="order-summary mb-4">
+                        <h4>Order Summary</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td>
+                                        <img src="{{ item.product.image.url }}" width="50" class="me-2">
+                                        {{ item.product.name }}
+                                    </td>
+                                    <td>${{ item.product.price }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>${{ item.total }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                                    <td>${{ order_subtotal }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Shipping:</strong></td>
+                                    <td>${{ order_shipping_fee }}</td>
+                                </tr>
+                                <tr class="table-active">
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong>${{ order_total }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <!-- Shipping Information -->
+                    <div class="shipping-info">
+                        <h4>Shipping Information</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Address:</strong><br>
+                                {{ order.billing_address.address_line1 }}<br>
+                                {% if order.billing_address.address_line2 %}
+                                    {{ order.billing_address.address_line2 }}<br>
+                                {% endif %}
+                                {{ order.billing_address.city }}, {{ order.billing_address.state }}<br>
+                                {{ order.billing_address.country }} - {{ order.billing_address.shippingfee.zip_code }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Contact:</strong><br>
+                                {{ order.billing_address.phone }}<br>
+                                {{ order.billing_address.email }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-center">
+                    <a href="{% url 'shop' %}" class="btn btn-primary">Continue Shopping</a>
+                    <a href="{% url 'order_list' %}" class="btn btn-outline-secondary ms-2">View All Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-header {
+        padding: 1.5rem;
+    }
+    .card-body {
+        padding: 2rem;
+    }
+    .card-footer {
+        padding: 1.5rem;
+        background-color: rgba(0,0,0,.03);
+        border-top: 1px solid rgba(0,0,0,.125);
+    }
+    .table {
+        margin-bottom: 1.5rem;
+    }
+    .table th {
+        border-top: none;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .badge {
+        font-size: 0.9em;
+        padding: 0.5em 0.75em;
+    }
+</style>
+{% endblock %}

@@ -24,3 +24,6 @@ pytest
 pytest-html
 
 pytest-django
+
+setuptools
+Pillow
